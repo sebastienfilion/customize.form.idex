@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     var copyrights, banner, footer;
 
     copyrights = '/*!\n' +
-        '* IDeX Custom form element v0.1\n' +
+        '* IDeX Custom form element v<%= pkg.version %>\n' +
         '* http://idesignexperiences.com/#custom-form-element\n' +
         '*\n' +
         '* Includes parts of jQuery\n' +

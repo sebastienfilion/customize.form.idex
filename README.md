@@ -168,7 +168,7 @@ idex.render = function(template, options) {
 
 And tadam, no more extra dependency! *Quick disclaimer: if you change de render function chances are that you will also have to change the templates*`
 
-### Classes ```[object]```
+#### Classes ```[object]```
 
 The last important option is the ```classes``` option. It allows you to change the state classes applied on the elements.
 

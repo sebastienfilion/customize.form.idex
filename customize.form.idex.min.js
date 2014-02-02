@@ -1,5 +1,5 @@
 /*!
-* IDeX Custom form element v0.1
+* IDeX Custom form element v0.1.0
 * http://idesignexperiences.com/#custom-form-element
 *
 * Includes parts of jQuery
