@@ -1,0 +1,13 @@
+{
+    "name": "idex-customize-form",
+    "version": "0.1.0",
+    "main": "/",
+    "ignore": [
+        ".git",
+        ".gitignore",
+        ".DS_Store"
+    ],
+    "devDependencies": {
+        "mustache": "~0.8.0"
+    }
+}

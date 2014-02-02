@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form</title>
+
+    <style>
+        .radio, .checkbox, .select {
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .radio, .checkbox {
+            width: 1em;
+            height: 1em;
+
+            border: 1px solid black;
+
+            display: inline-block;
+        }
+
+        .radio.focus, .checkbox.focus {
+            outline: 1px solid cyan;
+        }
+
+        .radio.active, .checkbox.active {
+            background-color: red;
+        }
+
+        .radio.active2, .checkbox.active2 {
+            background-color: blue;
+        }
+
+        .select {
+            width: 250px;
+            height: 1em;
+
+            display: inline-block;
+
+            position: relative;
+        }
+
+        .select-selected, .select-dropdown {
+            width: 100%;
+
+            border: 1px solid black;
+
+            display: block;
+        }
+
+        .select-selected {
+            height: 100%;
+        }
+
+        .select-dropdown {
+            top: 1em;
+            left: 0;
+
+            display: block;
+            position: absolute;
+        }
+
+        .select-dropdown.hide {
+            display: none;
+        }
+
+
+        .select-dropdown li:hover, .select-dropdown li.active {
+            background-color: yellow;
+
+            cursor: default;
+        }
+
+        .select.focus .select-selected {
+            outline: 1px solid cyan;
+        }
+
+        .error {
+            background-color: lightcoral;
+        }
+
+    </style>
+</head>
+<body>
+    <form action="">
+
+        <fieldset>
+            <legend>Radio box</legend>
+            <input name="choice" id="choice1" type="radio" value="choice1"/>
+            <label for="choice1">Choice 1</label>
+            <br/>
+            <input name="choice" id="choice2" type="radio" value="choice2"/>
+            <label for="choice2">Choice 2</label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Checkbox</legend>
+            <input name="possibility" id="possibility1" type="checkbox" value="possibility1"/>
+            <label for="possibility1">Possibility 1</label>
+            <br/>
+            <input name="possibility" id="possibility2" type="checkbox" value="possibility2"/>
+            <label for="possibility2">Possibility 2</label>
+        </fieldset>
+
+
+        <fieldset>
+            <legend>Select</legend>
+            <select name="select" id="select">
+                <option value="value1">Value 1</option>
+                <option value="value2">Value 2</option>
+                <option value="value3">Value 3</option>
+                <optgroup label="Group">
+                    <option value="groupedValue1">Grouped value 1</option>
+                    <option value="groupedValue2">Grouped value 2</option>
+                    <option value="groupedValue3">Grouped value 3</option>
+                </optgroup>
+            </select>
+        </fieldset>
+
+        <input name="submit" id="submit" type="submit" value="Submit"/>
+    </form>
+
+    <script src="../libraries/mustache.js"></script>
+
+    <script src="../libraries/jquery.js"></script>
+
+    <script src="../customize.form.idex.js"></script>
+    <script src="app.idex.js"></script>
+</body>
+</html>
