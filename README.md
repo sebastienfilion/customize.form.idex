@@ -5,7 +5,7 @@
 
 This simple library allows to easily customize form elements like radio buttons, checkboxes and select menu. It is easy to configure and will look exactly like you want it. Oh and it is accessible!
 
-**[DEMO](http://demo.idesignexperiences.com/customize-form**
+**[DEMO](http://demo.idesignexperiences.com/customize-form)**
 
 
 ## Usage
