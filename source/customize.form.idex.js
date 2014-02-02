@@ -1,7 +1,5 @@
     /* global idex */
 
-    console.log('1');
-
     // TODO Allow to not cutomize on name/type
     // TODO Test passing a jQuery element
 
@@ -103,8 +101,8 @@
 
             // Hide the original element from the document flow
             // Allows it to still be tabable, not it's not a word...
-            //this.element.style.position = "absolute";
-            //this.element.style.left = "-9999px";
+            this.element.style.position = "absolute";
+            this.element.style.left = "-9999px";
 
             if (callback) callback.apply(this);
 
