@@ -22,7 +22,7 @@ Voilà! That was easy. With this simple code, all the customizable elements of y
 
 Ok, let's do more!
 
-The ```idex.customize``` function takes two arguments an ```elemen [DOM element or jQuery]``` and the ```options [object]```. And here's the magic.
+The ```idex.customize``` function takes two arguments an ```element [DOM element or jQuery]``` and the ```options [object]```. And here's the magic.
 
 * * *
 
