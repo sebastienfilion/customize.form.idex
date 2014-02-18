@@ -1,9 +1,8 @@
     /* global idex */
 
     // TODO Allow to not cutomize on name/type
-    // TODO Test passing a jQuery element
 
-    var templates;
+    var templates, makers;
 
     templates = {
         box: '<div></div>',
@@ -110,6 +109,230 @@
         }
     };
 
+    // The makers object will help to create easily more custom object
+    // TODO Think of building a function idex.customize.addMaker();
+    makers = window.makers || {};
+
+    // RADIO AND CHECKBOXES
+    makers.box = function(options) {
+        if (!options.hasOwnProperty('template')) {
+            options.template = templates.box;
+        }
+
+        var element, p;
+
+        element = this;
+
+        //console.log(this);
+
+        p = new Prototype(element, options);
+
+        p.initialize(function() {
+            // Add the type to the class to the element
+            idex.addClass(this.customElement, this.element.type);
+
+            // Handle when the element change
+            idex.on(this.element, 'change', function() {
+                // Apply user callback
+                if (p.configs.callbacks.hasOwnProperty('beforechange')) p.configs.callbacks.beforechange.apply(p.element);
+
+                if (element.type === 'radio') {
+                    var siblings = document.querySelectorAll('[data-name="' + element.name + '"]');
+
+                    if (siblings.length) {
+                        for (var index = 0; index < siblings.length; index++) {
+                            idex.removeClass(siblings[index], p.configs.classes.active);
+                        }
+                    }
+                }
+
+                if (p.element.checked) {
+                    idex.addClass(p.customElement, p.configs.classes.active);
+                } else {
+                    idex.removeClass(p.customElement, p.configs.classes.active);
+                }
+
+                // Apply user callback
+                if (p.configs.callbacks.hasOwnProperty('afterchange')) p.configs.callbacks.afterchange.apply(p.element);
+            });
+            // Handle when the element is focused
+            idex.on(this.element, 'focus', function() {
+                idex.addClass(p.customElement, p.configs.classes.focus);
+            });
+            // Handle when the element is blured
+            idex.on(this.element, 'blur', function() {
+                idex.removeClass(p.customElement, p.configs.classes.focus);
+            });
+            // Handle when the custom element is clicked
+            idex.on(this.customElement, 'click', function() {
+                if (idex.hasClass(p.customElement, p.configs.classes.active)) {
+                    p.element.checked = false;
+                } else {
+                    p.element.checked = true;
+                }
+
+                idex.fire(p.element, 'change');
+            });
+        });
+    };
+
+    // SUBMIT BUTTON
+    makers.submit = function(options) {
+        if (!options.hasOwnProperty('template')) {
+            options.template = templates.button;
+        }
+
+        var element, p;
+
+        element = this;
+
+        p = new Prototype(element, options);
+
+        //var value;
+
+        value = this.value;
+
+        p.initialize({ value: value }, function() {
+            // Handle when the custom element is clicked
+            idex.on(this.customElement, 'click', function(event) {
+                idex.preventDefault(event);
+
+                idex.fire(p.element, 'click');
+            });
+
+        });
+    };
+
+    // SELECT MENU
+    makers.select = function(options) {
+        if (!options.hasOwnProperty('template')) {
+            // selected: element where the selected element text can be entered
+            // dropdown: the object that is the dropdown
+            // option: element where the option text goes with the value...
+
+            options.template = templates.select;
+        }
+
+        var element, p;
+
+        element = this;
+
+        p = new Prototype(element, options);
+
+        var optionsProperties, selected;
+
+        optionsProperties = [];
+
+        for (var index = 0; index < element.length; index++) {
+            var text/*, value*/;
+
+            text = element[index].textContent || element[index].text;
+            value = element[index].value;
+
+            if (element[index].selected) {
+                selected = element[index].text || element[index].textContent;
+            }
+
+            optionsProperties.push({
+                'text': text,
+                'value': value
+            });
+        }
+
+        p.initialize({
+            'selected': selected,
+            'options': optionsProperties
+        }, function() {
+            var selectedCustomElement, dropdownCustomElement, optionsCustomElements;
+
+            selectedCustomElement = this.customElement.querySelector('[data-element="selected"]');
+            dropdownCustomElement = this.customElement.querySelector('[data-element="dropdown"]');
+            optionsCustomElements = this.customElement.querySelectorAll('[data-element="option"]');
+
+            function openDrodown() {
+                idex.removeClass(dropdownCustomElement, p.configs.classes.hide);
+            }
+
+            function closeDropdown() {
+                window.setTimeout(function() {
+                    idex.addClass(dropdownCustomElement, p.configs.classes.hide);
+                }, 200);
+            }
+
+            function toggleDropdown() {
+                if (idex.hasClass(dropdownCustomElement, p.configs.classes.hide)) {
+                    openDrodown();
+                } else {
+                    closeDropdown();
+                }
+            }
+
+            function retrieveIndex(value) {
+                for (var index = 0; index < p.element.length; index++) {
+                    if (p.element[index].value === value) {
+                        return index;
+                    }
+                }
+            }
+
+            function handleClickOnOptions(event) {
+                var value;
+
+                value = event.currentTarget.getAttribute('data-value');
+
+                p.element.selectedIndex = retrieveIndex(value);
+
+                idex.fire(p.element, 'change');
+            }
+
+            // Handle when the element change
+            idex.on(this.element, 'change', function() {
+                // Apply user callback
+                if (p.configs.callbacks.hasOwnProperty('beforechange')) p.configs.callbacks.beforechange.apply(p.element);
+
+                var selectedIndex, selectedOptionCustomElement;
+
+                selectedIndex = p.element.selectedIndex;
+
+                selectedOptionCustomElement = optionsCustomElements[p.element.selectedIndex];
+
+                idex.removeClass(optionsCustomElements, p.configs.classes.active);
+                idex.addClass(selectedOptionCustomElement, p.configs.classes.active);
+
+                selectedCustomElement.innerText = p.element[selectedIndex].text || p.element[selectedIndex].textContent;
+
+                // Apply user callback
+                if (p.configs.callbacks.hasOwnProperty('afterchange')) p.configs.callbacks.afterchange.apply(p.element);
+            });
+
+            // Handle when the element is focused
+            idex.on(this.element, 'focus', function() {
+                idex.addClass(p.customElement, p.configs.classes.focus);
+                openDrodown();
+            });
+            // Handle when the element is blured
+            idex.on(this.element, 'blur', function() {
+                idex.removeClass(p.customElement, p.configs.classes.focus);
+                closeDropdown();
+            });
+            // Handle when the custom element is clicked
+            if (selectedCustomElement) {
+                idex.on(selectedCustomElement, 'click', function() {
+                    p.element.focus();
+                });
+
+            }
+
+            // Loop through the custom option elements to bind a click
+            for (var index = 0; index < optionsCustomElements.length; index++) {
+                idex.on(optionsCustomElements[index], 'click', handleClickOnOptions);
+
+            }
+
+            closeDropdown();
+        });
+    };
+
     /**
      *
      * @param elements The elements to customize. See documentation.
@@ -136,203 +359,12 @@
                 }
 
                 if (element.type === 'radio' || element.type === 'checkbox') {
-                    if (!opts.hasOwnProperty('template')) {
-                        opts.template = templates.box;
-                    }
-
-                    p = new Prototype(element, opts);
-
-                    p.initialize(function() {
-                        // Add the type to the class to the element
-                        idex.addClass(this.customElement, this.element.type);
-
-                        // Handle when the element change
-                        idex.on(this.element, 'change', function() {
-                            // Apply user callback
-                            if (p.configs.callbacks.hasOwnProperty('beforechange')) p.configs.callbacks.beforechange.apply(p.element);
-
-                            if (element.type === 'radio') {
-                                var siblings = document.querySelectorAll('[data-name="' + element.name + '"]');
-
-                                if (siblings.length) {
-                                    for (var index = 0; index < siblings.length; index++) {
-                                        idex.removeClass(siblings[index], p.configs.classes.active);
-                                    }
-                                }
-                            }
-
-                            if (p.element.checked) {
-                                idex.addClass(p.customElement, p.configs.classes.active);
-                            } else {
-                                idex.removeClass(p.customElement, p.configs.classes.active);
-                            }
-
-                            // Apply user callback
-                            if (p.configs.callbacks.hasOwnProperty('afterchange')) p.configs.callbacks.afterchange.apply(p.element);
-                        });
-                        // Handle when the element is focused
-                        idex.on(this.element, 'focus', function() {
-                            idex.addClass(p.customElement, p.configs.classes.focus);
-                        });
-                        // Handle when the element is blured
-                        idex.on(this.element, 'blur', function() {
-                            idex.removeClass(p.customElement, p.configs.classes.focus);
-                        });
-                        // Handle when the custom element is clicked
-                        idex.on(this.customElement, 'click', function() {
-                            if (idex.hasClass(p.customElement, p.configs.classes.active)) {
-                                p.element.checked = false;
-                            } else {
-                                p.element.checked = true;
-                            }
-
-                            idex.fire(p.element, 'change');
-                        });
-                    });
+                    makers.box.call(element, [opts]);
                 } else if (element.type === 'submit' || element.type === 'button') {
-                    if (!opts.hasOwnProperty('template')) {
-                        opts.template = templates.button;
-                    }
-
-                    p = new Prototype(element, opts);
-
-                    //var value;
-
-                    value = element.value;
-
-                    p.initialize({ value: value }, function() {
-                        // Handle when the custom element is clicked
-                        idex.on(this.customElement, 'click', function(event) {
-                            idex.preventDefault(event);
-
-                            idex.fire(p.element, 'click');
-                        });
-
-                    });
+                    makers.submit.call(element, [opts]);
                 }
             } else if (element.tagName === 'SELECT' ) {
-                if (!opts.hasOwnProperty('template')) {
-                    // selected: element where the selected element text can be entered
-                    // dropdown: the object that is the dropdown
-                    // option: element where the option text goes with the value...
-
-                    opts.template = templates.select;
-                }
-
-                p = new Prototype(element, opts);
-
-                var optionsProperties, selected;
-
-                optionsProperties = [];
-
-                for (var index = 0; index < element.length; index++) {
-                    var text/*, value*/;
-
-                    text = element[index].textContent || element[index].text;
-                    value = element[index].value;
-
-                    if (element[index].selected) {
-                        selected = element[index].text || element[index].textContent;
-                    }
-
-                    optionsProperties.push({
-                        'text': text,
-                        'value': value
-                    });
-                }
-
-                p.initialize({
-                    'selected': selected,
-                    'options': optionsProperties
-                }, function() {
-                    var selectedCustomElement, dropdownCustomElement, optionsCustomElements;
-
-                    selectedCustomElement = this.customElement.querySelector('[data-element="selected"]');
-                    dropdownCustomElement = this.customElement.querySelector('[data-element="dropdown"]');
-                    optionsCustomElements = this.customElement.querySelectorAll('[data-element="option"]');
-
-                    function openDrodown() {
-                        idex.removeClass(dropdownCustomElement, p.configs.classes.hide);
-                    }
-
-                    function closeDropdown() {
-                        window.setTimeout(function() {
-                            idex.addClass(dropdownCustomElement, p.configs.classes.hide);
-                        }, 200);
-                    }
-
-                    function toggleDropdown() {
-                        if (idex.hasClass(dropdownCustomElement, p.configs.classes.hide)) {
-                            openDrodown();
-                        } else {
-                            closeDropdown();
-                        }
-                    }
-
-                    function retrieveIndex(value) {
-                        for (var index = 0; index < p.element.length; index++) {
-                            if (p.element[index].value === value) {
-                                return index;
-                            }
-                        }
-                    }
-
-                    function handleClickOnOptions(event) {
-                        var value;
-
-                        value = event.currentTarget.getAttribute('data-value');
-
-                        p.element.selectedIndex = retrieveIndex(value);
-
-                        idex.fire(p.element, 'change');
-                    }
-
-                    // Handle when the element change
-                    idex.on(this.element, 'change', function() {
-                        // Apply user callback
-                        if (p.configs.callbacks.hasOwnProperty('beforechange')) p.configs.callbacks.beforechange.apply(p.element);
-
-                        var selectedIndex, selectedOptionCustomElement;
-
-                        selectedIndex = p.element.selectedIndex;
-
-                        selectedOptionCustomElement = optionsCustomElements[p.element.selectedIndex];
-
-                        idex.removeClass(optionsCustomElements, p.configs.classes.active);
-                        idex.addClass(selectedOptionCustomElement, p.configs.classes.active);
-
-                        selectedCustomElement.innerText = p.element[selectedIndex].text || p.element[selectedIndex].textContent;
-
-                        // Apply user callback
-                        if (p.configs.callbacks.hasOwnProperty('afterchange')) p.configs.callbacks.afterchange.apply(p.element);
-                    });
-
-                    // Handle when the element is focused
-                    idex.on(this.element, 'focus', function() {
-                        idex.addClass(p.customElement, p.configs.classes.focus);
-                        openDrodown();
-                    });
-                    // Handle when the element is blured
-                    idex.on(this.element, 'blur', function() {
-                        idex.removeClass(p.customElement, p.configs.classes.focus);
-                        closeDropdown();
-                    });
-                    // Handle when the custom element is clicked
-                    if (selectedCustomElement) {
-                        idex.on(selectedCustomElement, 'click', function() {
-                            p.element.focus();
-                        });
-
-                    }
-
-                    // Loop through the custom option elements to bind a click
-                    for (var index = 0; index < optionsCustomElements.length; index++) {
-                        idex.on(optionsCustomElements[index], 'click', handleClickOnOptions);
-
-                    }
-
-                    closeDropdown();
-                });
+                makers.select.call(element, [opts]);
             }
 
             //return p;
